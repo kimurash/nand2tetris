@@ -1,0 +1,84 @@
+class HangManGame{
+    field HangMan hangman;
+    field Answer answer;
+    field int numTrial;
+    field boolean outcome;
+
+    constructor HangManGame new(){
+        let hangman = HangMan.new();
+        let answer = Answer.new();
+        let numTrial = 0;
+        let outcome = false;
+        
+        do Output.moveCursor(0, 0);
+        do Output.printString("Guess a string of 6 characters.");
+        do Output.println();
+        do Output.printString("You have 12 chances to answer.");
+
+        return this;
+    }
+
+    method void run(){
+        var char input;
+        var String disp;
+
+        do Output.moveCursor(4, 0);
+        while(numTrial < 12){
+            let disp = answer.getDisplay();
+            do printStringWithSpace(disp);
+
+            do Output.printString(">>");
+            let input = Keyboard.readChar();
+            if(answer.contain(input)){
+                if(answer.discloseAll()){
+                    let outcome = true;
+                    let numTrial = 11;
+                }
+            } else{
+                if(hangman.draw()){
+                    let numTrial = 11;
+                }
+            }
+
+            do Output.println();
+            let numTrial = numTrial + 1;
+        }
+        do showResult();
+        return;
+    }
+
+    method void showResult(){
+        if(outcome){
+            do printStringWithSpace(answer.getDisplay());
+        } else{
+            do printStringWithSpace(answer.getAnswer());
+        }
+        do Output.println();
+        do Output.println();
+        if(outcome){
+            do Output.printString("You won :-)");
+        } else{
+            do Output.printString("You lost :-(");
+        }
+        return;
+    }
+
+    method void printStringWithSpace(String str){
+        var int i;
+        let i = 0;
+        while(i < str.length()){
+            do Output.printChar(str.charAt(i));
+            do Output.printString(" "); // [FIXME]
+            // do Output.printChar(' ');
+            let i = i + 1;
+        }
+        return;
+    }
+
+    method void dispose(){
+        do hangman.dispose();
+        do answer.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+}

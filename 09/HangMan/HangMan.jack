@@ -1,0 +1,48 @@
+class HangMan{
+    field int phase;
+
+    constructor HangMan new(){
+        let phase = 0;
+        return this;
+    }
+
+    method boolean draw(){
+        if(phase = 0){
+            do Screen.drawLine(226, 158, 286, 158);
+        } else{
+        if(phase = 1){
+            do Screen.drawLine(256, 58, 256, 158);
+        } else{
+        if(phase = 2){
+            do Screen.drawLine(256, 58, 286, 58);
+        } else{
+        if(phase = 3){
+            do Screen.drawLine(286, 58, 286, 68);
+        } else{
+        if(phase = 4){
+            do Screen.drawCircle(286, 78, 10);
+        } else{
+        if(phase = 5){
+            do Screen.drawLine(286, 88, 286, 118);
+        } else{
+        if(phase = 6){
+            do Screen.drawLine(286, 118, 276, 138);
+        } else{
+        if(phase = 7){
+            do Screen.drawLine(286, 118, 296, 138);
+        }
+        }}}}}}}
+        let phase = phase + 1;
+
+        if(phase = 8){
+            return true;
+        } else{
+            return false;
+        }
+    }
+
+    method void dispose(){
+        do Memory.deAlloc(this);
+        return;
+    }
+}

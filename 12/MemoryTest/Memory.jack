@@ -1,0 +1,163 @@
+// Memory file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Memory.jack
+
+/**
+ * Memory library provides two services: direct access to the computer's main
+ * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
+ * consists of 32,768 words, each holding a 16-bit binary number.
+ */ 
+class Memory {
+    static Array memory;
+    static Array freeList;
+
+    static int heapBase;
+    static int heapBottom;
+
+    /** Initializes the class. */
+    function void init() {
+        let heapBase = 2048;
+        let heapBottom = 16383;
+
+        let memory = 0;
+
+        let freeList = heapBase;
+        let freeList[0] = 16383 - 2048 + 1;
+        let freeList[1] = null;
+
+        return;
+    }
+
+    /** Returns the RAM value at the given address. */
+    function int peek(int address) {
+        return(memory[address]);
+    }
+
+    /** Sets the RAM value at the given address to the given value. */
+    function void poke(int address, int value) {
+        let memory[address] = value;
+        return;
+    }
+
+    /** Finds an available RAM block of the given size and returns
+     *  a reference to its base address. */
+    function int alloc(int size) {
+        var Array prevBlock;
+        var Array foundBlock;
+
+        if(size < 0){
+            do Sys.error(5);
+            return(0);
+        } else{
+            let prevBlock = Memory.bestFit(size + 1);
+            if(prevBlock > heapBottom){
+                do Sys.error(6);
+                return(null);
+            } else{
+                if(prevBlock = null){
+                    // new block is at the beginning of the freeList
+                    let foundBlock = freeList;
+                    let freeList = Memory.doAlloc(foundBlock, size + 1);
+                } else{
+                    let foundBlock = prevBlock[1];
+                    let prevBlock[1] = Memory.doAlloc(foundBlock, size + 1);
+                }
+                return(foundBlock + 1);
+            }
+        }
+    }
+
+    function Array bestFit(int size){
+        var Array bestBlock;
+        var Array prevBlock;
+        var Array crrntBlock;
+        var int bestSize;
+        var int crrntSize;
+
+        let bestBlock = heapBottom + 1; // OUT OF BLOCK
+        let bestSize = heapBottom - heapBase;
+        let crrntBlock = freeList;
+        let prevBlock = null;
+        
+        while(~(crrntBlock = null)){
+            let crrntSize = crrntBlock[0];
+            if(~(size > crrntSize) & (crrntSize < bestBlock)){
+                let bestBlock = prevBlock;
+                let bestSize = crrntSize;
+            }
+            let prevBlock = crrntBlock;
+            let crrntBlock = crrntBlock[1];
+        }
+
+        return(bestBlock); // return just before best fit
+    }
+
+    function Array doAlloc(Array foundBlock, int size){
+        var Array nextBlock;
+        
+        if(foundBlock[0] > size + 2){
+            let nextBlock = foundBlock + size;
+            let nextBlock[0] = foundBlock[0] - size;
+            let nextBlock[1] = foundBlock[1];
+            let foundBlock[0] = size;
+        } else{ // need to allocate the entire block
+            let nextBlock = foundBlock[1];
+            let foundBlock[0] = size;
+        }
+
+        return(nextBlock);
+    }
+
+    /** De-allocates the given object (cast as an array) by making
+     *  it available for future allocations. */
+    function void deAlloc(Array o) {
+        var int allocSize;
+        var Array prevBlock;
+        var Array nextBlock;
+
+        let allocSize = o[-1];
+        let o = o - 1;
+        let prevBlock = Memory.findPrevFree(o);
+
+        if(prevBlock = null){ // object becomes new start of freeList
+            let o[0] = allocSize;
+            let o[1] = freeList;
+            let freeList = o;
+            let prevBlock = o;
+        } else{
+            if(prevBlock + prevBlock[1] = o){
+                // join dealloc block with prev block
+                let prevBlock[0] = prevBlock[0] + allocSize;
+            } else{
+                // link dealloc block to prev block
+                let o[0] = allocSize;
+                let o[1] = prevBlock[1];
+                let prevBlock[1] = o;
+                let prevBlock = o;
+            }
+        }
+
+        if(prevBlock + prevBlock[0] = prevBlock[1]){
+            // join dealloc block with next block
+            let nextBlock = prevBlock[1];
+            let prevBlock[0] = prevBlock[0] + nextBlock[0];
+            let prevBlock[1] = nextBlock[1];
+        }
+        return;
+    }
+
+    function Array findPrevFree(Array object){
+        var Array block;
+
+        if(~(object > freeList)){
+            return(null);
+        }
+
+        let block = freeList;
+        while(~(block[1] = null) & (block[1] < object)){
+            let block = block[1];
+        }
+        return(block);
+    }
+}
