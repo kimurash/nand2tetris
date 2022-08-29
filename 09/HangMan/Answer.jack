@@ -1,0 +1,60 @@
+class Answer{
+    field String answer;
+    field String display;
+    field int numCrrct;
+
+    constructor Answer new(){
+        let answer = "HACKER";
+        let display = "______";
+        let numCrrct = 0;
+        return this;
+    }
+
+    // method void newAnswer(){
+    //     return;
+    // }
+
+    method boolean contain(char input){
+        var int i, before;
+        var char comp;
+        let i = 0;
+        let before = numCrrct;
+        while(i < answer.length()){
+            let comp = answer.charAt(i);
+            if(comp = input){
+                if(~(display.charAt(i) = input)){
+                    do display.setCharAt(i, input);
+                    let numCrrct = numCrrct + 1;
+                }
+            }
+            let i = i + 1;
+        }
+        if(before < numCrrct){
+            return true;
+        } else{
+            return false;
+        }
+
+    }
+
+    method boolean discloseAll(){
+        if(numCrrct = answer.length()){
+            return true;
+        } else{
+            return false;
+        }
+    }
+
+    method String getAnswer(){
+        return answer;
+    }
+
+    method String getDisplay(){
+        return display;
+    }
+
+    method void dispose(){
+        do Memory.deAlloc(this);
+        return;
+    }
+}
