@@ -1,6 +1,6 @@
 # nand2tetris
 Noam Nisan, Shimon Schocken著
-[『コンピュータシステムの理論と実装』](https://www.amazon.co.jp/dp/4873117127/)
+[『コンピュータシステムの理論と実装』](https://www.oreilly.co.jp/books/9784873117126/)
 (オライリー・ジャパン刊)
 の各章に用意されているプロジェクトの成果物．
 
